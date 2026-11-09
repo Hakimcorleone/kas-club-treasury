@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kas · Demo</title>
+<link rel="stylesheet" href="style.css">
+<script src="demo-backend.js"></script>
+<style>.demobar{position:sticky;top:0;z-index:9;display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#16181d;color:#fff;padding:8px 16px;font-size:13px}.demobar select{width:auto;max-width:100%;padding:5px 8px}.demobar button{border:0;border-radius:8px;padding:5px 10px;background:#fff;color:#16181d;font-weight:600}.demobar b{background:#e8590c;padding:2px 8px;border-radius:6px}aside{top:44px!important;height:calc(100vh - 44px)!important}</style>
+</head>
+<body>
+<div id="login" class="center hidden">
+  <div class="card login">
+    <div class="logo big">Kas<span>.</span></div>
+    <p class="muted" id="appName"></p>
+    <p>Rekod duit club dengan resit, kelulusan presiden, bajet event dan kalendar program.</p>
+    <div class="seg" style="margin:16px 0"><button type="button" id="tabIn" class="on inb" onclick="authTab('in')">Log masuk</button><button type="button" id="tabUp" onclick="authTab('up')">Daftar akaun</button></div>
+    <form id="authForm" onsubmit="authSubmit(event)" style="text-align:left;display:grid;gap:12px">
+      <div id="nameRow" class="hidden"><label>Nama penuh</label><input id="au-name" maxlength="80" autocomplete="name"></div>
+      <div><label>Email</label><input id="au-email" type="email" required autocomplete="email"></div>
+      <div id="pwRow"><label>Password</label><input id="au-pw" type="password" minlength="8" required autocomplete="current-password"></div>
+      <button class="btn p" id="au-go">Log masuk</button>
+      <a href="#" class="small" id="forgotLink" onclick="forgot(event)">Lupa password?</a>
+    </form>
+    <p class="small muted" id="loginMsg"></p>
+  </div>
+</div>
+
+<div id="noaccess" class="center hidden">
+  <div class="card login">
+    <div class="logo big">Kas<span>.</span></div>
+    <h2>Belum ada akses club</h2>
+    <p>Kau log masuk sebagai <b id="naEmail"></b>, tapi email ni belum dijemput ke mana-mana club.</p>
+    <p class="muted">Minta presiden club atau admin SRC jemput email ni, kemudian tekan semak semula.</p>
+    <div class="row"><button class="btn p" onclick="boot()">Semak semula</button><button class="btn" onclick="signOut()">Log keluar</button></div>
+  </div>
+</div>
+
+<div id="app" class="app hidden">
+  <aside id="side">
+    <div><div class="logo">Kas<span>.</span></div><div class="sub" id="appName2"></div></div>
+    <div><label>Club</label><select id="clubSel"></select><div class="sub" id="myRole" style="margin-top:6px"></div></div>
+    <nav id="nav"></nav>
+    <div class="who"><div class="row"><img id="avatar" class="av" alt=""><div><b id="meName"></b><div class="sub" id="meEmail"></div></div></div>
+      <button class="btn s" style="margin-top:10px" onclick="signOut()">Log keluar</button></div>
+  </aside>
+  <main id="main"><div class="empty">Memuatkan…</div></main>
+</div>
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="card" id="modalBody"></div></div>
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>
