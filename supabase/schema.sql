@@ -152,7 +152,8 @@ create trigger inv_audit after insert or delete on public.invites for each row e
 create or replace function public.accept_invites() returns int language plpgsql security definer set search_path = public as $$
 declare em text; n int := 0; i record;
 begin
-  select email into em from profiles where id = auth.uid();
+  -- Only verified emails can claim invites (stops someone signing up with another person's email).
+  select lower(u.email) into em from auth.users u where u.id = auth.uid() and u.email_confirmed_at is not null;
   if em is null then return 0; end if;
   for i in select * from invites where email = em and accepted_at is null loop
     insert into memberships(club_id, user_id, role) values (i.club_id, auth.uid(), i.role)
