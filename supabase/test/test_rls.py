@@ -45,6 +45,11 @@ deny("treasurer cannot invite", f"insert into invites(club_id,email,role,invited
 ok("tres1 accepts", "select accept_invites()", "tres1", expect=1)
 ok("mem1 accepts", "select accept_invites()", "mem1", expect=1)
 ok("outsider has nothing to accept", "select accept_invites()", "out", expect=0)
+ok("impostor signs up with unverified email", "insert into auth.users(id,email,email_confirmed_at) values ('00000000-0000-0000-0000-000000000009','victim@uniten.edu.my',null)")
+ok("invite victim email", f"insert into invites(club_id,email,role,invited_by) values ('{c1}','victim@uniten.edu.my','treasurer','{U['pres1']}')", "pres1")
+U["imp"]="00000000-0000-0000-0000-000000000009"
+ok("unverified impostor cannot claim invite", "select accept_invites()", "imp", expect=0)
+ok("impostor sees no clubs", "select count(*) from clubs", "imp", expect=0)
 
 # visibility
 ok("pres1 sees only club1", "select count(*) from clubs", "pres1", expect=1)
