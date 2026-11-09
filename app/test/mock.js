@@ -31,7 +31,7 @@ window.MOCK_ROLE = window.MOCK_ROLE || "president";
     return api;
   }
   window.supabase = {createClient: () => ({
-    auth: {getSession: async () => ({data: {session: {user: {id: me, email: "me@uniten.edu.my"}}}}), signOut: async () => {}, signInWithOAuth: async () => ({})},
+    auth: {onAuthStateChange: () => {}, signUp: async (a) => { window.MOCK_CALLS.push(['signUp', a]); return {data: {session: null}, error: null}; }, signInWithPassword: async (a) => { window.MOCK_CALLS.push(['signIn', a]); return {error: {message: 'Invalid login credentials'}}; }, resetPasswordForEmail: async () => ({error: null}), getSession: async () => ({data: {session: window.MOCK_NOSESSION ? null : {user: {id: me, email: "me@uniten.edu.my"}}}}), signOut: async () => {}, signInWithOAuth: async () => ({})},
     from: q,
     rpc: async (fn, args) => { window.MOCK_CALLS.push(["rpc", fn, args]); return {data: fn === "accept_invites" ? 0 : C1, error: null}; },
     storage: {from: () => ({createSignedUrl: async () => ({data: {signedUrl: "data:image/gif;base64,R0lGODlhAQABAAAAACw="}, error: null}), upload: async () => ({data: {}, error: null})})},
