@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kas · Club Treasury</title>
+<style>
+:root{--ink:#16181d;--mute:#6b7280;--line:#e8e5df;--bg:#f7f5f1;--card:#fff;--acc:#0f766e;--acc2:#e6f3f1;--in:#047857;--out:#be123c;--warn:#b45309;--r:14px}
+*{box-sizing:border-box}body{margin:0;font:14px/1.5 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg)}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+aside{background:#fff;border-right:1px solid var(--line);padding:22px 16px;display:flex;flex-direction:column;gap:18px;position:sticky;top:0;height:100vh}
+.logo{font-weight:800;font-size:20px;letter-spacing:-.02em}.logo span{color:var(--acc)}
+.sub{color:var(--mute);font-size:12px}
+nav a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:var(--ink);text-decoration:none;font-weight:500}
+nav a.on{background:var(--acc2);color:var(--acc)}nav a:hover{background:#f3f1ec}
+.badge{margin-left:auto;background:var(--out);color:#fff;border-radius:99px;font-size:11px;padding:0 7px;font-weight:700}
+.who{margin-top:auto;border-top:1px solid var(--line);padding-top:14px}
+label{display:block;font-size:12px;font-weight:600;color:var(--mute);margin:0 0 5px}
+select,input,textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:#fff;outline:none}
+select:focus,input:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc2)}
+main{padding:28px 34px;max-width:1180px;width:100%}
+h1{font-size:26px;letter-spacing:-.02em;margin:0}h2{font-size:16px;margin:0 0 14px}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.grid{display:grid;gap:16px}.g4{grid-template-columns:repeat(4,1fr)}.g2{grid-template-columns:1.4fr 1fr}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.kpi .l{color:var(--mute);font-size:12px;font-weight:600}.kpi .v{font-size:24px;font-weight:750;letter-spacing:-.02em;margin-top:4px}
+.kpi .h{font-size:12px;color:var(--mute);margin-top:2px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 14px;font-weight:600}
+.btn.p{background:var(--acc);border-color:var(--acc);color:#fff}.btn.d{color:var(--out)}.btn.s{padding:6px 10px;font-size:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+table{width:100%;border-collapse:collapse}th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute);padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:11px 10px;border-bottom:1px solid #f1eee9;vertical-align:top}tr:last-child td{border-bottom:0}
+.r{text-align:right;white-space:nowrap}.nw{white-space:nowrap}.in{color:var(--in);font-weight:650}.out{color:var(--out);font-weight:650}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:99px}
+.submitted{background:#fef3c7;color:var(--warn)}.approved{background:#d1fae5;color:var(--in)}.rejected{background:#ffe4e6;color:var(--out)}
+.muted{color:var(--mute)}.small{font-size:12px}
+.bar{height:8px;background:#efece6;border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc);border-radius:99px}
+.bar i.w{background:var(--warn)}.bar i.x{background:var(--out)}
+.row{display:flex;gap:10px;align-items:center}.sp{justify-content:space-between}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:14px}.form .full{grid-column:1/-1}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}.seg button{flex:1;border:0;background:#fff;padding:9px;font-weight:600}
+.seg button.on.inb{background:#d1fae5;color:var(--in)}.seg button.on.outb{background:#ffe4e6;color:var(--out)}
+.drop{border:1.5px dashed #cfcac1;border-radius:12px;padding:18px;text-align:center;color:var(--mute);cursor:pointer;background:#fbfaf8}
+.drop img{max-height:160px;border-radius:8px;display:block;margin:0 auto}
+.thumb{width:38px;height:38px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:zoom-in}
+.empty{padding:28px;text-align:center;color:var(--mute)}
+.chart{display:flex;align-items:flex-end;gap:10px;height:150px;padding-top:6px}
+.chart .c{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}.chart .c div{display:flex;gap:3px;align-items:flex-end;height:120px}
+.chart b{width:12px;border-radius:4px 4px 0 0;display:block}.chart small{color:var(--mute);font-size:11px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;opacity:0;transition:.25s;pointer-events:none;z-index:9}
+.toast.on{opacity:1}
+.modal{position:fixed;inset:0;background:rgba(15,15,20,.5);display:none;align-items:center;justify-content:center;z-index:8;padding:20px}
+.modal.on{display:flex}.modal .card{max-width:560px;width:100%;max-height:90vh;overflow:auto}
+.modal img{max-width:100%;border-radius:10px}
+.alert{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:12px;padding:10px 14px;font-size:13px}
+.menu{display:none}
+@media (max-width:860px){.app{grid-template-columns:1fr}aside{position:fixed;inset:0 30% 0 0;z-index:7;transform:translateX(-105%);transition:.2s;height:100%}
+aside.open{transform:none;box-shadow:0 0 0 999px rgba(0,0,0,.3)}.menu{display:inline-block}main{padding:18px}.g4{grid-template-columns:1fr 1fr}.g2,.form{grid-template-columns:1fr}
+.hide-m{display:none}}
+@media print{aside,.noprint,.head .btn{display:none!important}.app{display:block}main{padding:0}.card{border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside id="side">
+    <div><div class="logo">Kas<span>.</span></div><div class="sub">Club Treasury · UNITEN</div></div>
+    <nav id="nav"></nav>
+    <div class="who">
+      <label>Demo: log masuk sebagai</label>
+      <select id="userSel"></select>
+      <div class="sub" style="margin-top:8px" id="whoRole"></div>
+      <button class="btn s" style="margin-top:10px" onclick="resetDemo()">Reset demo data</button>
+    </div>
+  </aside>
+  <main id="main"></main>
+</div>
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="card" id="modalBody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- data ---------- */
+const KEY = "kas-demo-v1";
+const MYR = c => (c < 0 ? "-" : "") + "RM " + (Math.abs(c) / 100).toLocaleString("en-MY", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const today = () => new Date().toISOString().slice(0, 10);
+const RECEIPT = (t, c) => "data:image/svg+xml," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='300' height='400'><rect width='300' height='400' fill='#fff'/><rect x='10' y='10' width='280' height='380' fill='none' stroke='#ddd'/><text x='150' y='60' font-family='monospace' font-size='18' text-anchor='middle'>RESIT</text><text x='150' y='120' font-family='monospace' font-size='14' text-anchor='middle'>${t}</text><text x='150' y='330' font-family='monospace' font-size='22' text-anchor='middle' font-weight='bold'>${c}</text></svg>`);
+
+function seed() {
+  const d = (n) => { const x = new Date(); x.setDate(x.getDate() - n); return x.toISOString().slice(0, 10); };
+  const users = [
+    {id: "u1", name: "Aina (Bendahari 3ESC)", role: "treasurer", club: "c1"},
+    {id: "u2", name: "Haziq (Presiden 3ESC)", role: "president", club: "c1"},
+    {id: "u3", name: "Farah (Bendahari Rakan Muda)", role: "treasurer", club: "c2"},
+    {id: "u4", name: "Danial (Presiden Rakan Muda)", role: "president", club: "c2"},
+    {id: "u5", name: "SRC Auditor", role: "auditor", club: null},
+  ];
+  const clubs = [
+    {id: "c1", name: "3ESC Energy, Economics & Env", opening: 120000},
+    {id: "c2", name: "Sekretariat Rakan Muda", opening: 80000},
+  ];
+  const events = [
+    {id: "e1", club: "c1", name: "Green Energy Week", budget: 350000},
+    {id: "e2", club: "c1", name: "AGM 2026", budget: 80000},
+    {id: "e3", club: "c2", name: "Program Khidmat Komuniti", budget: 150000},
+  ];
+  let n = 0; const tx = [];
+  const add = (club, ev, type, amt, cat, desc, by, status, days, appr) => tx.push({
+    id: ++n, club, event: ev, type, amount: amt, category: cat, description: desc, date: d(days), receipt: RECEIPT(desc.slice(0, 26), MYR(amt)),
+    status, createdBy: by, createdAt: d(days), decidedBy: status !== "submitted" ? appr : null, note: status === "rejected" ? "Tiada sebut harga ketiga" : "", reverses: null});
+  add("c1", "e1", "income", 200000, "Sponsorship", "Tajaan TNB Green Energy Week", "u1", "approved", 40, "u2");
+  add("c1", "e1", "expense", 85000, "Venue", "Sewa dewan DSS 2 hari", "u1", "approved", 33, "u2");
+  add("c1", "e1", "expense", 62050, "F&B", "Makanan peserta 120 pax", "u1", "approved", 30, "u2");
+  add("c1", "e2", "expense", 45000, "F&B", "Katering AGM 60 pax", "u1", "approved", 12, "u2");
+  add("c1", "e1", "expense", 120000, "Merchandise", "T-shirt event 100 helai", "u1", "rejected", 9, "u2");
+  add("c1", "e1", "expense", 98000, "Merchandise", "T-shirt event (3 sebut harga)", "u1", "submitted", 2);
+  add("c1", "e2", "income", 30000, "Membership fee", "Yuran ahli 60 orang", "u1", "submitted", 1);
+  add("c2", "e3", "income", 150000, "Grant", "Geran HEP program komuniti", "u3", "approved", 20, "u4");
+  add("c2", "e3", "expense", 70000, "Transport", "Sewa bas ke Hulu Langat", "u3", "approved", 15, "u4");
+  add("c2", "e3", "expense", 54000, "Supplies", "Barang sumbangan 30 keluarga", "u3", "submitted", 3);
+  const audit = tx.map(t => ({at: t.createdAt, user: t.createdBy, action: "create", detail: `#${t.id} ${t.type} ${MYR(t.amount)}`}));
+  return {users, clubs, events, tx, audit, nextId: n + 1, me: "u1"};
+}
+let S = JSON.parse(localStorage.getItem(KEY) || "null") || seed();
+const save = () => localStorage.setItem(KEY, JSON.stringify(S));
+function resetDemo() { if (confirm("Reset semua data demo?")) { S = seed(); save(); route(); toast("Data demo direset"); } }
+const me = () => S.users.find(u => u.id === S.me);
+const uname = id => (S.users.find(u => u.id === id) || {}).name?.split(" (")[0] || "-";
+const visibleClubs = () => me().role === "auditor" ? S.clubs : S.clubs.filter(c => c.id === me().club);
+const clubName = id => (S.clubs.find(c => c.id === id) || {}).name || "-";
+const log = (action, detail) => S.audit.unshift({at: new Date().toISOString().slice(0, 16).replace("T", " "), user: S.me, action, detail});
+
+function stats(clubId) {
+  const c = S.clubs.find(x => x.id === clubId), t = S.tx.filter(x => x.club === clubId);
+  const ok = t.filter(x => x.status === "approved");
+  const inc = ok.filter(x => x.type === "income").reduce((a, b) => a + b.amount, 0);
+  const exp = ok.filter(x => x.type === "expense").reduce((a, b) => a + b.amount, 0);
+  const pend = t.filter(x => x.status === "submitted");
+  return {opening: c.opening, inc, exp, bal: c.opening + inc - exp, pend, ok};
+}
+function eventSpent(evId) { return S.tx.filter(t => t.event === evId && t.status === "approved").reduce((a, t) => a + (t.type === "expense" ? t.amount : -0), 0); }
+
+/* ---------- ui helpers ---------- */
+function toast(m) { const t = document.getElementById("toast"); t.textContent = m; t.classList.add("on"); setTimeout(() => t.classList.remove("on"), 2200); }
+function modal(html) { document.getElementById("modalBody").innerHTML = html; document.getElementById("modal").classList.add("on"); }
+function closeModal() { document.getElementById("modal").classList.remove("on"); }
+function showReceipt(id) { const t = S.tx.find(x => x.id === id); modal(`<div class="row sp"><h2>Resit #${t.id}</h2><button class="btn s" onclick="closeModal()">Tutup</button></div><img src="${t.receipt}" alt="receipt">`); }
+const pill = s => `<span class="pill ${s}">${{submitted: "Pending", approved: "Approved", rejected: "Rejected"}[s]}</span>`;
+let curClub = null;
+function clubPicker() {
+  const cs = visibleClubs(); if (!curClub || !cs.find(c => c.id === curClub)) curClub = cs[0]?.id;
+  return cs.length > 1 ? `<select style="width:auto" onchange="curClub=this.value;route()">${cs.map(c => `<option value="${c.id}" ${c.id === curClub ? "selected" : ""}>${esc(c.name)}</option>`).join("")}</select>` : "";
+}
+
+/* ---------- pages ---------- */
+const PAGES = {
+  dashboard: {label: "Dashboard", icon: "◧", show: () => true},
+  add: {label: "Rekod transaksi", icon: "＋", show: () => me().role === "treasurer"},
+  approvals: {label: "Kelulusan", icon: "✓", show: () => me().role === "president"},
+  transactions: {label: "Transaksi", icon: "≡", show: () => true},
+  events: {label: "Bajet event", icon: "◔", show: () => true},
+  report: {label: "Laporan", icon: "▤", show: () => true},
+  audit: {label: "Audit log", icon: "⌁", show: () => me().role !== "treasurer"},
+  public: {label: "Ketelusan (public)", icon: "◎", show: () => true},
+};
+
+function nav() {
+  const cur = location.hash.slice(1) || "dashboard";
+  const pend = me().role === "president" ? S.tx.filter(t => t.club === me().club && t.status === "submitted").length : 0;
+  document.getElementById("nav").innerHTML = Object.entries(PAGES).filter(([, p]) => p.show()).map(([k, p]) =>
+    `<a href="#${k}" class="${k === cur ? "on" : ""}" onclick="document.getElementById('side').classList.remove('open')"><span>${p.icon}</span>${p.label}${k === "approvals" && pend ? `<span class="badge">${pend}</span>` : ""}</a>`).join("");
+  const sel = document.getElementById("userSel");
+  sel.innerHTML = S.users.map(u => `<option value="${u.id}" ${u.id === S.me ? "selected" : ""}>${esc(u.name)}</option>`).join("");
+  document.getElementById("whoRole").textContent = me().role === "auditor" ? "Nampak semua club, read only" : clubName(me().club);
+}
+document.getElementById("userSel").onchange = e => { S.me = e.target.value; save(); curClub = null; location.hash = "dashboard"; route(); };
+
+const header = (title, sub, right = "") => `<div class="head"><div><button class="btn s menu noprint" onclick="document.getElementById('side').classList.add('open')">☰</button><h1>${title}</h1><div class="muted">${sub}</div></div><div class="row">${right}</div></div>`;
+
+function pDashboard() {
+  const picker = clubPicker(), s = stats(curClub);
+  const months = [...Array(6)].map((_, i) => { const d = new Date(); d.setMonth(d.getMonth() - 5 + i); return d.toISOString().slice(0, 7); });
+  const mv = months.map(m => { const t = s.ok.filter(x => x.date.startsWith(m)); return {m, i: t.filter(x => x.type === "income").reduce((a, b) => a + b.amount, 0), o: t.filter(x => x.type === "expense").reduce((a, b) => a + b.amount, 0)}; });
+  const mx = Math.max(1, ...mv.flatMap(x => [x.i, x.o]));
+  const cats = {}; s.ok.filter(x => x.type === "expense").forEach(x => cats[x.category] = (cats[x.category] || 0) + x.amount);
+  const cl = Object.entries(cats).sort((a, b) => b[1] - a[1]); const ct = cl.reduce((a, b) => a + b[1], 0) || 1;
+  return header(esc(clubName(curClub)), "Ringkasan kewangan. Kira transaksi yang dah lulus sahaja.", picker) + `
+  ${s.pend.length ? `<div class="alert" style="margin-bottom:16px">${s.pend.length} transaksi (${MYR(s.pend.reduce((a, b) => a + b.amount, 0))}) menunggu kelulusan presiden.</div>` : ""}
+  <div class="grid g4">
+    <div class="card kpi"><div class="l">Baki semasa</div><div class="v">${MYR(s.bal)}</div><div class="h">Baki awal ${MYR(s.opening)}</div></div>
+    <div class="card kpi"><div class="l">Jumlah masuk</div><div class="v in">${MYR(s.inc)}</div><div class="h">${s.ok.filter(x => x.type === "income").length} transaksi</div></div>
+    <div class="card kpi"><div class="l">Jumlah keluar</div><div class="v out">${MYR(s.exp)}</div><div class="h">${s.ok.filter(x => x.type === "expense").length} transaksi</div></div>
+    <div class="card kpi"><div class="l">Pending</div><div class="v" style="color:var(--warn)">${s.pend.length}</div><div class="h">Resit lengkap: 100%</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card"><div class="row sp"><h2>Aliran 6 bulan</h2><span class="small muted"><b style="color:var(--in)">■</b> masuk <b style="color:var(--out)">■</b> keluar</span></div>
+      <div class="chart">${mv.map(x => `<div class="c"><div><b style="height:${x.i / mx * 120}px;background:var(--in)"></b><b style="height:${x.o / mx * 120}px;background:var(--out)"></b></div><small>${new Date(x.m + "-01").toLocaleString("en", {month: "short"})}</small></div>`).join("")}</div></div>
+    <div class="card"><h2>Belanja ikut kategori</h2>${cl.length ? cl.map(([k, v]) => `<div style="margin-bottom:10px"><div class="row sp small"><span>${esc(k)}</span><b>${MYR(v)}</b></div><div class="bar"><i style="width:${v / ct * 100}%"></i></div></div>`).join("") : `<div class="empty">Belum ada perbelanjaan</div>`}</div>
+  </div>
+  <div class="card" style="margin-top:16px"><div class="row sp"><h2>Transaksi terkini</h2><a href="#transactions" class="small">Lihat semua →</a></div>${txTable(S.tx.filter(t => t.club === curClub).slice(-5).reverse())}</div>`;
+}
+
+function txTable(rows, actions = false) {
+  if (!rows.length) return `<div class="empty">Tiada transaksi.</div>`;
+  return `<table><thead><tr><th>#</th><th>Tarikh</th><th>Butiran</th><th class="hide-m">Event</th><th>Status</th><th class="r">Jumlah</th><th class="noprint">Resit</th>${actions ? "<th></th>" : ""}</tr></thead><tbody>${rows.map(t => {
+    const ev = S.events.find(e => e.id === t.event);
+    return `<tr><td class="muted">${t.id}</td><td class="small nw">${t.date}</td><td><b>${esc(t.category)}</b><div class="small muted">${esc(t.description)}${t.reverses ? ` · pembetulan #${t.reverses}` : ""}</div><div class="small muted">oleh ${esc(uname(t.createdBy))}${t.decidedBy ? ` · ${t.status === "approved" ? "lulus" : "tolak"} ${esc(uname(t.decidedBy))}` : ""}${t.note ? ` · “${esc(t.note)}”` : ""}</div></td>
+    <td class="small hide-m">${ev ? esc(ev.name) : "-"}</td><td>${pill(t.status)}</td><td class="r ${t.type === "income" ? "in" : "out"}">${t.type === "income" ? "+" : "−"}${MYR(t.amount)}</td>
+    <td class="noprint"><img class="thumb" src="${t.receipt}" onclick="showReceipt(${t.id})" alt=""></td>${actions ? `<td>${actions(t)}</td>` : ""}</tr>`;
+  }).join("")}</tbody></table>`;
+}
+
+let draft = {type: "expense", receipt: null};
+function pAdd() {
+  if (me().role !== "treasurer") return header("Rekod transaksi", "") + `<div class="card empty">Bendahari sahaja.</div>`;
+  const evs = S.events.filter(e => e.club === me().club);
+  return header("Rekod transaksi", `${esc(clubName(me().club))} · resit wajib, akan dihantar kepada presiden untuk kelulusan`) + `
+  <form class="card form" onsubmit="submitTx(event)" style="max-width:760px">
+    <div class="full"><label>Jenis</label><div class="seg"><button type="button" class="${draft.type === "income" ? "on inb" : ""}" onclick="draft.type='income';route()">Duit masuk</button><button type="button" class="${draft.type === "expense" ? "on outb" : ""}" onclick="draft.type='expense';route()">Duit keluar</button></div></div>
+    <div><label>Jumlah (RM)</label><input id="f-amt" inputmode="decimal" placeholder="0.00" required></div>
+    <div><label>Tarikh</label><input id="f-date" type="date" value="${today()}" max="${today()}" required></div>
+    <div><label>Kategori</label><input id="f-cat" list="cats" placeholder="F&B, Venue, Sponsorship…" required maxlength="40"><datalist id="cats">${["F&B", "Venue", "Merchandise", "Transport", "Sponsorship", "Membership fee", "Printing", "Grant", "Supplies"].map(c => `<option>${c}</option>`).join("")}</datalist></div>
+    <div><label>Event / program</label><select id="f-ev"><option value="">Tiada (operasi am)</option>${evs.map(e => `<option value="${e.id}">${esc(e.name)}</option>`).join("")}</select></div>
+    <div class="full"><label>Penerangan</label><textarea id="f-desc" rows="2" maxlength="200" placeholder="Contoh: Katering AGM 60 pax" required></textarea></div>
+    <div class="full"><label>Resit / invois (wajib)</label><div class="drop" onclick="document.getElementById('f-file').click()">${draft.receipt ? `<img src="${draft.receipt}" alt="">` : "📎 Tekan untuk upload atau ambil gambar resit"}</div>
+      <input id="f-file" type="file" accept="image/*" capture="environment" hidden onchange="readReceipt(this)"></div>
+    <div class="full row sp"><span class="small muted">Transaksi tak boleh dipadam selepas dihantar. Silap? Buat pembetulan.</span><button class="btn p">Hantar untuk kelulusan</button></div>
+  </form>`;
+}
+function readReceipt(inp) {
+  const f = inp.files[0]; if (!f) return;
+  const img = new Image(), rd = new FileReader();
+  rd.onload = () => { img.onload = () => { const c = document.createElement("canvas"), k = Math.min(1, 900 / Math.max(img.width, img.height)); c.width = img.width * k; c.height = img.height * k; c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); draft.receipt = c.toDataURL("image/jpeg", .7); route(); }; img.src = rd.result; };
+  rd.readAsDataURL(f);
+}
+function submitTx(e) {
+  e.preventDefault();
+  const amt = Math.round(parseFloat(document.getElementById("f-amt").value.replace(/[^0-9.]/g, "")) * 100);
+  if (!(amt > 0)) return toast("Jumlah tak sah");
+  if (!draft.receipt) return toast("Resit wajib");
+  const t = {id: S.nextId++, club: me().club, event: document.getElementById("f-ev").value || null, type: draft.type, amount: amt,
+    category: document.getElementById("f-cat").value.trim(), description: document.getElementById("f-desc").value.trim(), date: document.getElementById("f-date").value,
+    receipt: draft.receipt, status: "submitted", createdBy: S.me, createdAt: today(), decidedBy: null, note: "", reverses: null};
+  S.tx.push(t); log("create", `#${t.id} ${t.type} ${MYR(amt)}`); save(); draft = {type: "expense", receipt: null};
+  toast(`#${t.id} dihantar kepada presiden`); location.hash = "transactions";
+}
+
+function pApprovals() {
+  const rows = S.tx.filter(t => t.club === me().club && t.status === "submitted");
+  return header("Kelulusan", `${esc(clubName(me().club))} · semak resit sebelum lulus`) + `<div class="card">${txTable(rows, t => t.createdBy === S.me ? `<span class="small muted">Transaksi sendiri</span>` :
+    `<div class="row"><button class="btn s p" onclick="decide(${t.id},true)">Lulus</button><button class="btn s d" onclick="decide(${t.id},false)">Tolak</button></div>`)}</div>`;
+}
+function decide(id, ok) {
+  const t = S.tx.find(x => x.id === id);
+  if (me().role !== "president" || t.club !== me().club || t.createdBy === S.me || t.status !== "submitted") return toast("Tiada kebenaran");
+  let note = "";
+  if (!ok) { note = prompt("Sebab tolak?"); if (!note) return; }
+  t.status = ok ? "approved" : "rejected"; t.decidedBy = S.me; t.note = note;
+  log(ok ? "approve" : "reject", `#${id} ${MYR(t.amount)}${note ? " · " + note : ""}`); save(); route(); toast(ok ? "Diluluskan" : "Ditolak");
+}
+
+let filt = {q: "", status: "", type: ""};
+function pTransactions() {
+  const picker = clubPicker();
+  let rows = S.tx.filter(t => t.club === curClub).slice().reverse();
+  if (filt.status) rows = rows.filter(t => t.status === filt.status);
+  if (filt.type) rows = rows.filter(t => t.type === filt.type);
+  if (filt.q) rows = rows.filter(t => (t.category + " " + t.description).toLowerCase().includes(filt.q.toLowerCase()));
+  const canFix = t => me().role === "treasurer" && t.club === me().club && t.status === "approved" && !t.reverses && !S.tx.some(x => x.reverses === t.id && x.status !== "rejected");
+  return header("Transaksi", "Semua rekod. Tiada padam, hanya pembetulan.", picker + `<button class="btn" onclick="exportCSV()">Export CSV</button>`) + `
+  <div class="card"><div class="row noprint" style="margin-bottom:12px;flex-wrap:wrap">
+    <input style="max-width:260px" placeholder="Cari…" value="${esc(filt.q)}" oninput="filt.q=this.value;clearTimeout(window._q);window._q=setTimeout(()=>{route();const i=document.querySelector('main input');i.focus();i.setSelectionRange(99,99)},250)">
+    <select style="width:auto" onchange="filt.status=this.value;route()"><option value="">Semua status</option>${["submitted", "approved", "rejected"].map(s => `<option value="${s}" ${filt.status === s ? "selected" : ""}>${s}</option>`).join("")}</select>
+    <select style="width:auto" onchange="filt.type=this.value;route()"><option value="">Masuk & keluar</option><option value="income" ${filt.type === "income" ? "selected" : ""}>Masuk</option><option value="expense" ${filt.type === "expense" ? "selected" : ""}>Keluar</option></select>
+  </div>${txTable(rows, t => canFix(t) ? `<button class="btn s" onclick="reverseTx(${t.id})">Betulkan</button>` : "")}</div>`;
+}
+function reverseTx(id) {
+  const t = S.tx.find(x => x.id === id), why = prompt(`Sebab pembetulan #${id}?`); if (!why) return;
+  const r = {...t, id: S.nextId++, type: t.type === "income" ? "expense" : "income", category: "Pembetulan", description: `Batal #${id}: ${why}`, status: "submitted",
+    createdBy: S.me, createdAt: today(), date: today(), decidedBy: null, note: "", reverses: id};
+  S.tx.push(r); log("reversal", `#${r.id} batal #${id}`); save(); route(); toast("Pembetulan dihantar untuk kelulusan");
+}
+function exportCSV() {
+  const rows = [["id", "date", "club", "event", "type", "amount_rm", "category", "description", "status", "recorded_by", "decided_by", "note", "reverses"]]
+    .concat(S.tx.filter(t => t.club === curClub).map(t => [t.id, t.date, clubName(t.club), (S.events.find(e => e.id === t.event) || {}).name || "", t.type, (t.amount / 100).toFixed(2), t.category, t.description, t.status, uname(t.createdBy), uname(t.decidedBy), t.note, t.reverses || ""]));
+  const csv = "\ufeff" + rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], {type: "text/csv"})); a.download = `${clubName(curClub)}_transactions.csv`; a.click();
+  log("export", clubName(curClub)); save();
+}
+
+function pEvents() {
+  const picker = clubPicker(), evs = S.events.filter(e => e.club === curClub);
+  const canEdit = me().role === "president" && me().club === curClub;
+  return header("Bajet event", "Bajet vs belanja sebenar (yang dah lulus)", picker) + `<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">${evs.map(e => {
+    const sp = eventSpent(e.id), pc = sp / e.budget * 100;
+    return `<div class="card"><div class="row sp"><b>${esc(e.name)}</b><span class="small ${pc > 100 ? "out" : pc > 80 ? "" : "muted"}" style="${pc > 80 && pc <= 100 ? "color:var(--warn)" : ""}">${Math.round(pc)}%</span></div>
+      <div class="kpi"><div class="v" style="font-size:20px">${MYR(sp)}</div><div class="h">daripada ${MYR(e.budget)} · baki ${MYR(e.budget - sp)}</div></div>
+      <div class="bar" style="margin-top:10px"><i class="${pc > 100 ? "x" : pc > 80 ? "w" : ""}" style="width:${Math.min(100, pc)}%"></i></div>
+      ${pc > 80 ? `<div class="small" style="margin-top:8px;color:${pc > 100 ? "var(--out)" : "var(--warn)"}">${pc > 100 ? "Melebihi bajet" : "Hampir capai bajet"}</div>` : ""}</div>`;
+  }).join("") || `<div class="card empty">Belum ada event.</div>`}</div>
+  ${canEdit ? `<form class="card form" style="margin-top:16px;max-width:620px" onsubmit="addEvent(event)"><h2 class="full" style="margin:0">Tambah event</h2><div><label>Nama</label><input id="ev-n" required maxlength="50"></div><div><label>Bajet (RM)</label><input id="ev-b" inputmode="decimal" required></div><div class="full"><button class="btn p">Tambah</button></div></form>` : ""}`;
+}
+function addEvent(e) {
+  e.preventDefault(); const b = Math.round(parseFloat(document.getElementById("ev-b").value) * 100); if (!(b > 0)) return toast("Bajet tak sah");
+  S.events.push({id: "e" + Date.now(), club: me().club, name: document.getElementById("ev-n").value.trim(), budget: b}); log("event", document.getElementById("ev-n").value); save(); route();
+}
+
+let repMonth = today().slice(0, 7);
+function pReport() {
+  const picker = clubPicker(), c = S.clubs.find(x => x.id === curClub);
+  const ok = S.tx.filter(t => t.club === curClub && t.status === "approved");
+  const before = ok.filter(t => t.date < repMonth + "-01"), rows = ok.filter(t => t.date.startsWith(repMonth)).sort((a, b) => a.date.localeCompare(b.date));
+  const open = c.opening + before.reduce((a, t) => a + (t.type === "income" ? t.amount : -t.amount), 0);
+  const inc = rows.filter(t => t.type === "income").reduce((a, t) => a + t.amount, 0), exp = rows.filter(t => t.type === "expense").reduce((a, t) => a + t.amount, 0);
+  const label = new Date(repMonth + "-01").toLocaleString("ms-MY", {month: "long", year: "numeric"});
+  return header("Laporan", "Penyata kewangan bulanan, sedia untuk HEP", picker + `<input type="month" style="width:auto" value="${repMonth}" onchange="repMonth=this.value;route()"><button class="btn p" onclick="window.print()">Cetak / PDF</button>`) + `
+  <div class="card" style="max-width:860px"><div class="row sp"><div><h1 style="font-size:22px">${esc(c.name)}</h1><div class="muted">Penyata kewangan · ${label}</div></div><div class="small muted r">Dijana ${today()}<br>Transaksi lulus sahaja</div></div>
+  <table style="max-width:380px;margin:20px 0"><tbody><tr><td>Baki awal</td><td class="r">${MYR(open)}</td></tr><tr><td>Jumlah masuk</td><td class="r in">${MYR(inc)}</td></tr><tr><td>Jumlah keluar</td><td class="r out">${MYR(exp)}</td></tr><tr><td><b>Baki akhir</b></td><td class="r"><b>${MYR(open + inc - exp)}</b></td></tr></tbody></table>
+  ${txTable(rows)}
+  <div class="row sp" style="margin-top:50px"><div style="width:42%;border-top:1px solid var(--ink);padding-top:6px" class="small">Disediakan oleh (Bendahari)</div><div style="width:42%;border-top:1px solid var(--ink);padding-top:6px" class="small">Disahkan oleh (Presiden)</div></div></div>`;
+}
+
+function pAudit() {
+  const ids = visibleClubs().map(c => c.id);
+  const rows = S.audit.filter(a => { const u = S.users.find(x => x.id === a.user); return !u || !u.club || ids.includes(u.club) || me().role === "auditor"; }).slice(0, 80);
+  return header("Audit log", "Siapa buat apa, bila. Tak boleh diubah.") + `<div class="card"><table><thead><tr><th>Masa</th><th>Pengguna</th><th>Tindakan</th><th>Butiran</th></tr></thead><tbody>${rows.map(a => `<tr><td class="small">${esc(a.at)}</td><td>${esc(uname(a.user))}</td><td><span class="pill" style="background:#f1eee9">${esc(a.action)}</span></td><td class="small">${esc(a.detail)}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
+function pPublic() {
+  return header("Ketelusan", "Paparan public: ringkasan sahaja, tiada nama atau resit") + `<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">${S.clubs.map(c => {
+    const s = stats(c.id), evs = S.events.filter(e => e.club === c.id);
+    return `<div class="card"><b style="font-size:16px">${esc(c.name)}</b><div class="grid" style="grid-template-columns:1fr 1fr;margin:14px 0;gap:10px"><div class="kpi"><div class="l">Diterima</div><div class="v in" style="font-size:18px">${MYR(s.inc)}</div></div><div class="kpi"><div class="l">Dibelanja</div><div class="v out" style="font-size:18px">${MYR(s.exp)}</div></div></div>
+    ${evs.map(e => `<div class="small row sp"><span>${esc(e.name)}</span><span class="muted">${MYR(eventSpent(e.id))} / ${MYR(e.budget)}</span></div>`).join("")}</div>`;
+  }).join("")}</div>`;
+}
+
+const RENDER = {dashboard: pDashboard, add: pAdd, approvals: pApprovals, transactions: pTransactions, events: pEvents, report: pReport, audit: pAudit, public: pPublic};
+function route() {
+  let k = location.hash.slice(1) || "dashboard"; if (!PAGES[k] || !PAGES[k].show()) k = "dashboard";
+  nav(); document.getElementById("main").innerHTML = RENDER[k](); window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", route); route();
+</script>
+</body>
+</html>
