@@ -18,16 +18,52 @@ function show(id) { ["login", "noaccess", "app"].forEach(x => $(x).classList.tog
 const fail = (error, msg) => { if (error) { console.error(error); toast(msg || error.message); return true; } return false; };
 
 /* ---------- auth ---------- */
-async function signIn() {
-  const {error} = await sb.auth.signInWithOAuth({provider: "google", options: {redirectTo: location.origin + location.pathname, queryParams: {prompt: "select_account"}}});
-  fail(error);
+let AUTH_MODE = "in";
+function authTab(m) {
+  AUTH_MODE = m; $("tabIn").className = m === "in" ? "on inb" : ""; $("tabUp").className = m === "up" ? "on inb" : "";
+  $("nameRow").classList.toggle("hidden", m !== "up"); $("au-name").required = m === "up";
+  $("au-go").textContent = m === "up" ? "Daftar" : "Log masuk"; $("forgotLink").classList.toggle("hidden", m !== "in");
+  $("au-pw").autocomplete = m === "up" ? "new-password" : "current-password"; $("loginMsg").textContent = "";
+}
+async function authSubmit(e) {
+  e.preventDefault();
+  if (!sb) return;
+  const email = $("au-email").value.trim().toLowerCase(), pw = $("au-pw").value, msg = $("loginMsg");
+  if ((CFG.ALLOWED_DOMAINS || []).length && !CFG.ALLOWED_DOMAINS.some(d => email.endsWith("@" + d))) { msg.textContent = `Guna email ${CFG.ALLOWED_DOMAINS.join(" / ")}`; return; }
+  $("au-go").disabled = true; msg.textContent = "";
+  try {
+    if (AUTH_MODE === "up") {
+      const {data, error} = await sb.auth.signUp({email, password: pw, options: {data: {full_name: $("au-name").value.trim()}, emailRedirectTo: location.origin + location.pathname}});
+      if (error) { msg.textContent = error.message; return; }
+      if (!data.session) { msg.textContent = `Semak inbox ${email} dan tekan link pengesahan, kemudian log masuk.`; authTab("in"); return; }
+      return boot();
+    }
+    const {error} = await sb.auth.signInWithPassword({email, password: pw});
+    if (error) { msg.textContent = /confirm/i.test(error.message) ? "Email belum disahkan. Semak inbox." : "Email atau password salah."; return; }
+    boot();
+  } finally { $("au-go").disabled = false; }
+}
+async function forgot(e) {
+  e.preventDefault();
+  const email = $("au-email").value.trim().toLowerCase();
+  if (!email) { $("loginMsg").textContent = "Isi email dulu."; return; }
+  const {error} = await sb.auth.resetPasswordForEmail(email, {redirectTo: location.origin + location.pathname});
+  $("loginMsg").textContent = error ? error.message : `Link reset password dihantar ke ${email}.`;
 }
 async function signOut() { await sb.auth.signOut(); location.hash = ""; location.reload(); }
 
 async function boot() {
   $("appName").textContent = $("appName2").textContent = CFG.APP_NAME || "Club Treasury";
-  if (!CFG.SUPABASE_URL || !CFG.SUPABASE_ANON_KEY) { show("login"); $("loginMsg").textContent = "Belum dikonfigurasi: isi SUPABASE_URL dan SUPABASE_ANON_KEY dalam config.js"; return; }
-  sb = sb || supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+  if (!CFG.SUPABASE_URL || !CFG.SUPABASE_ANON_KEY) { show("login"); $("au-go").disabled = true; $("loginMsg").textContent = "Sistem belum disambung ke database (config.js kosong)."; return; }
+  if (!sb) {
+    sb = supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+    sb.auth.onAuthStateChange(async (ev) => {
+      if (ev === "PASSWORD_RECOVERY") {
+        const pw = prompt("Password baru (min 8 aksara):");
+        if (pw && pw.length >= 8) { const {error} = await sb.auth.updateUser({password: pw}); toast(error ? error.message : "Password dikemas kini"); }
+      }
+    });
+  }
   const {data: {session}} = await sb.auth.getSession();
   if (!session) return show("login");
   const email = (session.user.email || "").toLowerCase();
